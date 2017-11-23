@@ -1,27 +1,39 @@
-// ライブラリ読み込み
-var express    = require('express');
-var app        = express();
-var bodyParser = require('body-parser');
-var mongoose   = require('mongoose');
+/* 1. expressモジュールをロードし、インスタンス化してappに代入。*/
+var express = require("express");
+var app = express();
 
-mongoose.Promise = global.Promise;
-mongoose.connect('mongodb://localhost:27017/ExpressAPI');
-mongoose.connection.on('error', function(err) {
-    console.error('MongoDB connection error: ' + err);
-    process.exit(-1);
+/* 2. listen()メソッドを実行して3000番ポートで待ち受け。*/
+var server = app.listen(3000, function(){
+    console.log("Node.js is listening to PORT:" + server.address().port);
 });
 
-//body-parserの設定
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(bodyParser.json());
+/* 3. 以後、アプリケーション固有の処理 */
 
-var port = process.env.PORT || 3000; // port番号を指定
+// 写真のサンプルデータ
+var photoList = [
+    {
+        id: "001",
+        name: "photo001.jpg",
+        type: "jpg",
+        dataUrl: "http://localhost:3000/data/photo001.jpg"
+    },{
+        id: "002",
+        name: "photo002.jpg",
+        type: "jpg",
+        dataUrl: "http://localhost:3000/data/photo002.jpg"
+    }
+]
 
-
-// GET http://localhost:3000/api/v1/
-avar router = require('./routes/v1/');
-app.use('/api/v1/', router);
-
-//サーバ起動
-app.listen(port);
-console.log('listen on port ' + port);
+// 写真リストを取得するAPI
+app.get("/api/photo/list", function(req, res, next){
+    res.json(photoList);
+});
+app.get("/api/photo/:photoId", function(req, res, next){
+    var photo;
+    for (i = 0; i < photoList.length; i++){
+        if (photoList[i].id == req.params.photoId){
+            var photo = photoList[i];
+        }
+    }
+    res.json(photo);
+});
